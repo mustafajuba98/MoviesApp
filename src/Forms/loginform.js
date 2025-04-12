@@ -1,103 +1,162 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; 
+
+// MUI Imports
+import Container from "@mui/material/Container";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 function Loginform() {
   const [userInfo, setUserInfo] = useState({
-    name: null,
-    password: null,
+    email: "", // Initialize with empty strings
+    password: "",
   });
 
   const [errors, setErrors] = useState({
-    errname: null,
-    errpass: null,
+    errEmail: null,
+    errPass: null,
   });
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
   const [showPassword, setShowPassword] = useState(false);
+  // const navigate = useNavigate(); // إذا كنت تريد التوجيه برمجياً بعد تسجيل الدخول
 
-  const handleforminput = (e) => {
-    if (e.target.name === "name") {
-      setUserInfo({
-        ...userInfo,
-        name: e.target.value,
-      });
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setUserInfo({ ...userInfo, [name]: value });
+
+    // Validate on change
+    if (name === "email") {
       setErrors({
         ...errors,
-        errname:
-          e.target.value.length === 0
-            ? "this field is required"
-            : !emailRegex.test(e.target.value) && "must enter an email",
+        errEmail:
+          value.length === 0
+            ? "Email is required"
+            : !emailRegex.test(value)
+            ? "Please enter a valid email address"
+            : null,
       });
-    } else {
-      setUserInfo({
-        ...userInfo,
-        password: e.target.value,
-      });
+    } else if (name === "password") {
       setErrors({
         ...errors,
-        errpass:
-          e.target.value.length === 0
-            ? "this field is required"
-            : e.target.value.length < 8 && "password must be 8 character",
+        errPass:
+          value.length === 0
+            ? "Password is required"
+            : value.length < 8
+            ? "Password must be at least 8 characters long"
+            : null,
       });
     }
   };
 
-  const preventdefault = (e) => {
-    e.preventDefault();
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault(); 
   };
 
-  return (
-    <>
-      <div className="container">
-        <h1>Form</h1>
-        <form onSubmit={(e) => preventdefault(e)}>
-          <div className="mb-3">
-            <label htmlFor="exampleInputEmail1" className="form-label">
-              Email address
-            </label>
-            <input
-              type="email"
-              className="form-control"
-              id="exampleInputEmail1"
-              name="name"
-              onChange={(e) => handleforminput(e)}
-            />
-            <p className="text-danger"> {errors.errname} </p>
-          </div>
-          <div className="mb-3">
-            <label htmlFor="exampleInputPassword1" className="form-label">
-              Password
-            </label>
-            <div className="input-group">
-              <input
-                type={showPassword ? "text" : "password"}
-                className="form-control"
-                id="exampleInputPassword1"
-                onChange={(e) => handleforminput(e)}
-              />
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const emailError =
+      userInfo.email.length === 0
+        ? "Email is required"
+        : !emailRegex.test(userInfo.email)
+        ? "Please enter a valid email address"
+        : null;
+    const passError =
+      userInfo.password.length === 0
+        ? "Password is required"
+        : userInfo.password.length < 8
+        ? "Password must be at least 8 characters long"
+        : null;
 
-              <button
-                type="button"
-                name="password"
-                className="btn btn-outline-secondary"
-                onClick={() => setShowPassword(!showPassword)}
-                style={{ border: "none", background: "transparent" }}
-              >
-                <i
-                  className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"}`}
-                  style={{ cursor: "pointer" }}
-                ></i>
-              </button>
-            </div>
-            <p className="text-danger"> {errors.errpass} </p>
-          </div>
-          <button type="submit" className="btn btn-primary">
-            Submit
-          </button>
-        </form>
-      </div>
-    </>
+    setErrors({ errEmail: emailError, errPass: passError });
+
+    if (!emailError && !passError) {
+      console.log("Login submitted:", userInfo);
+      alert("Login attempt (check console)");
+    } else {
+      console.log("Form has errors");
+    }
+  };
+
+  const isFormValid =
+    !errors.errEmail && !errors.errPass && userInfo.email && userInfo.password;
+
+  return (
+    <Container component="main" maxWidth="xs">
+      <Box
+        sx={{
+          marginTop: 8,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
+          Login
+        </Typography>
+        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+          <TextField
+            margin="normal" 
+            required
+            fullWidth 
+            id="email"
+            label="Email Address"
+            name="email"
+            autoComplete="email"
+            autoFocus 
+            value={userInfo.email}
+            onChange={handleInputChange}
+            error={!!errors.errEmail} 
+            helperText={errors.errEmail} 
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="password"
+            label="Password"
+            type={showPassword ? "text" : "password"}
+            id="password"
+            autoComplete="current-password"
+            value={userInfo.password}
+            onChange={handleInputChange}
+            error={!!errors.errPass}
+            helperText={errors.errPass}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained" 
+            sx={{ mt: 3, mb: 2 }} 
+            disabled={!isFormValid} 
+          >
+            Login
+          </Button>
+
+        </Box>
+      </Box>
+    </Container>
   );
 }
 

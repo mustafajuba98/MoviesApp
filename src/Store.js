@@ -1,6 +1,9 @@
-import { composeWithDevTools } from 'redux-devtools-extension';
-import { createStore } from "redux";
-import CombineReducers from "./Redux/Reducers/CombinedReducxers";
-const myStore = createStore(CombineReducers, composeWithDevTools());
+
+import { createStore, compose } from "redux";
+import CombineReducers from "./Redux/Reducers/CombinedReducxers"; // Verify path
+
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+
+const myStore = createStore(CombineReducers, composeEnhancers());
 
 export default myStore;

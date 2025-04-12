@@ -1,43 +1,73 @@
-import "bootstrap/dist/css/bootstrap.min.css";
-// import Loginform from "./Forms/loginform";
-// import Registerform from "./Forms/registerform";
-// import ToDoApp from "./Forms/ToDoApp";
+import React, { useState, useMemo } from "react";
+import { Switch, Route } from "react-router-dom";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import Box from "@mui/material/Box";
+
 import Navbar from "./Pages/navbar";
+import Footer from "./Components/Footer"; // Adjusted path assuming Footer is in Components
 import Home from "./Pages/home";
-import Notfound from "./Pages/notfound";
+import Movies from "./Pages/movies";
+import FavouriteMovies from "./Pages/FavouriteMovies";
+import Moviedetails from "./Pages/moviedetails";
 import Loginform from "./Forms/loginform";
 import Registerform from "./Forms/registerform";
-import Movies from "./Pages/movies";
-import "bootstrap/dist/js/bootstrap.bundle.min";
-import { BrowserRouter, Route, Switch } from "react-router-dom";
-import { useEffect } from "react";
-import axios from "react";
-import moviedetails from "../src/Pages/moviedetails";
-import FavouriteMovies from "./Pages/FavouriteMovies";
+import Notfound from "./Pages/notfound";
+import TodoApp from "./Forms/ToDoApp"; // Adjusted path based on user's code
 
 function App() {
+  const [mode, setMode] = useState("light");
 
+  const colorMode = useMemo(
+    () => ({
+      toggleColorMode: () => {
+        setMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
+      },
+    }),
+    []
+  );
 
-
+  const theme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode,
+          primary: {
+            main: "#1976d2",
+          },
+          secondary: {
+            main: "#dc004e",
+          },
+        },
+      }),
+    [mode]
+  );
 
   return (
-    <>
-      <BrowserRouter>
-        <Navbar />
-        <Switch>
-          <Route path="/" component={Home} exact />
-          <Route path="/Loginform" component={Loginform} exact />
-          <Route path="/Registerform" component={Registerform} exact />
-          <Route path="/Movies" component={Movies} exact />
-          <Route path="/Moviedetails/:id" component={moviedetails} exact />
-          <Route path="/FavouriteMovies" component={FavouriteMovies} exact />
-
-
-
-          <Route path="*" component={Notfound} exact />
-        </Switch>
-      </BrowserRouter>
-    </>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Box
+        sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+      >
+        <Navbar
+          currentMode={mode}
+          toggleColorMode={colorMode.toggleColorMode}
+        />
+        <Box component="main" sx={{ flexGrow: 1 }}>
+          <Switch>
+            <Route exact path="/" component={Home} />
+            <Route path="/movies" component={Movies} />
+            <Route path="/favouritemovies" component={FavouriteMovies} />
+            <Route path="/moviedetails/:id" component={Moviedetails} />
+            <Route path="/loginform" component={Loginform} />
+            <Route path="/registerform" component={Registerform} />
+            <Route path="/todo" component={TodoApp} />
+            <Route path="*" component={Notfound} />
+          </Switch>
+        </Box>
+        <Footer />
+      </Box>
+    </ThemeProvider>
   );
 }
 
